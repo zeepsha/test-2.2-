@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator & Simulasi Investasi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen p-4">
+    <div class="max-w-6xl mx-auto">
+        <!-- Header -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-3">
+                📊 Kalkulator & Simulasi Investasi
+            </h1>
+            <p class="text-gray-600">Hitung proyeksi investasi atau mainkan game simulasi investasi!</p>
+        </div>
+
+        <!-- Mode Selector -->
+        <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
+            <div class="flex gap-4">
+                <button onclick="switchMode('calculator')" id="btnCalculator" class="flex-1 py-3 px-6 rounded-lg font-semibold transition bg-indigo-600 text-white">
+                    📊 Kalkulator
+                </button>
+                <button onclick="switchMode('game')" id="btnGame" class="flex-1 py-3 px-6 rounded-lg font-semibold transition bg-gray-100 text-gray-600 hover:bg-gray-200">
+                    🎮 Game Simulasi
+                </button>
+                <button onclick="switchMode('belajar')" id="btnBelajar" class="flex-1 py-3 px-6 rounded-lg font-semibold transition bg-gray-100 text-gray-600 hover:bg-gray-200">
+                    Belajar
+                </button>
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+            <!-- Left Panel -->
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6" id="leftTitle">Hitung Investasi</h2>
+
+                <!-- Game Stats -->
+                <div id="gameStats" class="mb-6 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border-2 border-green-200 hidden">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-semibold text-gray-700">Saldo Cash:</span>
+                        <span class="text-2xl font-bold text-green-600" id="displayBalance">$1000.00</span>
+                    </div>
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-semibold text-gray-700">Nilai Portfolio:</span>
+                        <span class="text-2xl font-bold text-blue-600" id="displayPortfolio">$0.00</span>
+                    </div>
+                    <div class="flex justify-between items-center pt-2 border-t-2 border-green-300">
+                        <span class="font-bold text-gray-800">Total Kekayaan:</span>
+                        <span class="text-3xl font-bold text-indigo-600" id="displayTotal">$1000.00</span>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-green-300">
+                        <div class="text-center">
+                            <div class="text-sm text-gray-600 mb-1">Tahun ke-<span id="displayYear">0</span></div>
+                            <div class="text-lg font-bold text-purple-600" id="displayCondition">Normal</div>
+                            <div class="text-xs text-gray-500 mt-1" id="displayConditionDesc"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Asset Selection -->
+                <div class="space-y-3 mb-6">
+                    <label class="block text-sm font-semibold text-gray-700">Pilih Aset Investasi</label>
+                    <button onclick="selectAsset('gold')" class="asset-btn w-full p-4 rounded-lg border-2 border-indigo-600 bg-indigo-50" data-asset="gold">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">🪙</span>
+                            <div class="flex-1 text-left">
+                                <div class="font-bold text-gray-800">Emas</div>
+                                <div class="text-sm text-gray-600">Return: 8%/tahun • Risiko: Rendah</div>
+                            </div>
+                        </div>
+                    </button>
+                    <button onclick="selectAsset('bitcoin')" class="asset-btn w-full p-4 rounded-lg border-2 border-gray-200 hover:border-gray-300" data-asset="bitcoin">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">₿</span>
+                            <div class="flex-1 text-left">
+                                <div class="font-bold text-gray-800">Bitcoin</div>
+                                <div class="text-sm text-gray-600">Return: 50%/tahun • Risiko: Sangat Tinggi</div>
+                            </div>
+                        </div>
+                    </button>
+                    <button onclick="selectAsset('stock')" class="asset-btn w-full p-4 rounded-lg border-2 border-gray-200 hover:border-gray-300" data-asset="stock">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">📈</span>
+                            <div class="flex-1 text-left">
+                                <div class="font-bold text-gray-800">Saham</div>
+                                <div class="text-sm text-gray-600">Return: 15%/tahun • Risiko: Sedang-Tinggi</div>
+                            </div>
+                        </div>
+                    </button>
+                    <button onclick="selectAsset('bond')" class="asset-btn w-full p-4 rounded-lg border-2 border-gray-200 hover:border-gray-300" data-asset="bond">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">📄</span>
+                            <div class="flex-1 text-left">
+                                <div class="font-bold text-gray-800">Obligasi</div>
+                                <div class="text-sm text-gray-600">Return: 6%/tahun • Risiko: Rendah</div>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Amount Input -->
+                <div class="mb-4">
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">Jumlah Investasi ($)</label>
+                    <input type="number" id="inputAmount" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-600 focus:outline-none" placeholder="Masukkan jumlah">
+                </div>
+
+                <!-- Calculator Inputs -->
+                <div id="calculatorInputs">
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Jangka Waktu (Tahun)</label>
+                        <input type="number" id="inputYears" value="5" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-600 focus:outline-none" placeholder="Berapa tahun?">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-semibold text-gray-700 mb-2">Expected Return per Tahun (%)</label>
+                        <input type="number" id="inputReturn" step="0.1" class="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-indigo-600 focus:outline-none" placeholder="Default: 8%">
+                        <p class="text-xs text-gray-500 mt-1">Kosongkan untuk menggunakan return default</p>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div id="calculatorActions">
+                    <button onclick="calculate()" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-semibold hover:bg-indigo-700 transition">
+                        Hitung Proyeksi
+                    </button>
+                </div>
+
+                <div id="gameActions" class="space-y-3 hidden">
+                    <button onclick="investInGame()" class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+                        💰 Investasikan Sekarang
+                    </button>
+                    <button onclick="nextYear()" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                        ⏭️ Tahun Berikutnya
+                    </button>
+                    <button onclick="resetGame()" class="w-full bg-gray-600 text-white py-3 rounded-lg font-semibold hover:bg-gray-700 transition">
+                        🔄 Reset Game
+                    </button>
+                </div>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="bg-white rounded-2xl shadow-xl p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6" id="rightTitle">Hasil Proyeksi</h2>
+                <div id="resultContent"></div>
+            </div>
+        </div>
+
+        <!-- Tips Section -->
+        <div class="mt-6 bg-white rounded-2xl shadow-xl p-6">
+            <h3 class="font-bold text-gray-800 mb-3">💡 Tips Investasi:</h3>
+            <ul class="space-y-2 text-gray-700">
+                <li>• <strong>Diversifikasi:</strong> Jangan investasi semua di satu aset</li>
+                <li>• <strong>Jangka Panjang:</strong> Investasi terbaik membutuhkan waktu</li>
+                <li>• <strong>Risiko vs Return:</strong> Return tinggi = risiko tinggi</li>
+                <li>• <strong>Mode Game:</strong> Coba strategi berbeda tanpa risiko nyata!</li>
+                <li>• <strong>Kondisi Makro:</strong> Ekonomi berpengaruh besar terhadap return aset</li>
+                <li>• <strong>Safe Haven:</strong> Emas & obligasi cenderung aman saat resesi</li>
+            </ul>
+            <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                <h4 class="font-bold text-gray-800 mb-2">📊 Range Return Historis:</h4>
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                    <div><span class="font-semibold text-yellow-700">Emas:</span> -5% hingga +20%</div>
+                    <div><span class="font-semibold text-green-700">Obligasi:</span> -2% hingga +12%</div>
+                    <div><span class="font-semibold text-blue-700">Saham:</span> -30% hingga +50%</div>
+                    <div><span class="font-semibold text-orange-700">Bitcoin:</span> -60% hingga +200%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // App State
+        let mode = 'calculator';
+        let selectedAsset = 'gold';
+        let gameBalance = 1000;
+        let portfolio = { gold: 0, bitcoin: 0, stock: 0, bond: 0 };
+        let gameYear = 0;
+        let gameHistory = [];
+        let economicCondition = 'Normal';
+        let lastYearReturns = {};
+
+        const assets = {
+            gold: { name: 'Emas', avgReturn: 8, volatilityRange: [-5, 20], emoji: '🪙', color: 'yellow' },
+            bitcoin: { name: 'Bitcoin', avgReturn: 50, volatilityRange: [-60, 200], emoji: '₿', color: 'orange' },
+            stock: { name: 'Saham', avgReturn: 15, volatilityRange: [-30, 50], emoji: '📈', color: 'blue' },
+            bond: { name: 'Obligasi', avgReturn: 6, volatilityRange: [-2, 12], emoji: '📄', color: 'green' }
+        };
+
+        const conditions = [
+            { name: 'Resesi 💔', multiplier: 0.5, description: 'Ekonomi sedang lesu' },
+            { name: 'Bearish 📉', multiplier: 0.75, description: 'Pasar sedang turun' },
+            { name: 'Normal 😐', multiplier: 1, description: 'Kondisi ekonomi stabil' },
+            { name: 'Bullish 📈', multiplier: 1.25, description: 'Pasar sedang naik' },
+            { name: 'Booming 🚀', multiplier: 1.5, description: 'Ekonomi sangat bagus!' }
+        ];
+
+        function switchMode(newMode) {
+            mode = newMode;
+            document.getElementById('btnCalculator').className = mode === 'calculator' 
+                ? 'flex-1 py-3 px-6 rounded-lg font-semibold transition bg-indigo-600 text-white'
+                : 'flex-1 py-3 px-6 rounded-lg font-semibold transition bg-gray-100 text-gray-600 hover:bg-gray-200';
+            document.getElementById('btnGame').className = mode === 'game'
+                ? 'flex-1 py-3 px-6 rounded-lg font-semibold transition bg-indigo-600 text-white'
+                : 'flex-1 py-3 px-6 rounded-lg font-semibold transition bg-gray-100 text-gray-600 hover:bg-gray-200';
+            
+            document.getElementById('leftTitle').textContent = mode === 'calculator' ? 'Hitung Investasi' : 'Investasi Saya';
+            document.getElementById('rightTitle').textContent = mode === 'calculator' ? 'Hasil Proyeksi' : 'Portfolio Saya';
+            
+            document.getElementById('gameStats').classList.toggle('hidden', mode === 'calculator');
+            document.getElementById('calculatorInputs').classList.toggle('hidden', mode === 'game');
+            document.getElementById('calculatorActions').classList.toggle('hidden', mode === 'game');
+            document.getElementById('gameActions').classList.toggle('hidden', mode === 'calculator');
+            
+            if (mode === 'game') {
+    updateGameDisplay();
+    updatePortfolioDisplay();
+
+} else if (mode === 'belajar') {
+    document.getElementById('resultContent').innerHTML = `
+        <div class="p-6 space-y-6">
+            <h2 class="text-2xl font-bold">📘 Belajar Investasi</h2>
+
+            <div class="space-y-4">
+                <h3 class="text-xl font-semibold">1. Apa itu Saham?</h3>
+                <p>Saham adalah bukti kepemilikan sebagian dari sebuah perusahaan...</p>
+
+                <h3 class="text-xl font-semibold">2. Risiko & Return</h3>
+                <p>Semua investasi memiliki risiko. Semakin tinggi return, semakin tinggi risiko...</p>
+
+                <h3 class="text-xl font-semibold">3. Diversifikasi</h3>
+                <p>Jangan taruh seluruh uang di satu aset. Sebar ke beberapa instrumen...</p>
+            </div>
+        </div>
+    `;
+} else {
+    document.getElementById('resultContent').innerHTML = `
+        <div class="text-center text-gray-500 py-12">
+            <p class="text-6xl mb-4">💰</p>
+            <p>Masukkan data dan klik "Hitung Proyeksi"</p>
+        </div>
+    `;
+}
+
+        }
+
+        function selectAsset(asset) {
+            selectedAsset = asset;
+            document.querySelectorAll('.asset-btn').forEach(btn => {
+                btn.className = btn.dataset.asset === asset
+                    ? 'asset-btn w-full p-4 rounded-lg border-2 border-indigo-600 bg-indigo-50'
+                    : 'asset-btn w-full p-4 rounded-lg border-2 border-gray-200 hover:border-gray-300';
+            });
+            
+            if (mode === 'calculator') {
+                document.getElementById('inputReturn').placeholder = `Default: ${assets[asset].avgReturn}%`;
+            }
+        }
+
+        function calculate() {
+            const amount = parseFloat(document.getElementById('inputAmount').value);
+            const years = parseInt(document.getElementById('inputYears').value);
+            const customReturn = document.getElementById('inputReturn').value;
+            const returnRate = customReturn ? parseFloat(customReturn) : assets[selectedAsset].avgReturn;
+            
+            if (!amount || !years) {
+                alert('Mohon isi jumlah investasi dan jangka waktu!');
+                return;
+            }
+            
+            const rate = returnRate / 100;
+            const volatility = selectedAsset === 'bitcoin' ? 0.3 : selectedAsset === 'stock' ? 0.15 : 0.05;
+            
+            let projections = [];
+            for (let i = 1; i <= years; i++) {
+                const randomFactor = 1 + (Math.random() - 0.5) * volatility;
+                const yearlyRate = rate * randomFactor;
+                const futureValue = amount * Math.pow(1 + yearlyRate, i);
+                projections.push({
+                    year: i,
+                    value: futureValue,
+                    return: futureValue - amount
+                });
+            }
+            
+            const finalValue = projections[projections.length - 1].value;
+            const totalReturn = finalValue - amount;
+            const returnPercentage = (totalReturn / amount) * 100;
+            
+            displayCalculatorResult(amount, finalValue, totalReturn, returnPercentage, projections, returnRate);
+        }
+
+        function displayCalculatorResult(principal, finalValue, totalReturn, returnPercentage, projections, usedReturn) {
+            let html = `
+                <div class="space-y-4 fade-in">
+                    <div class="p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg">
+                        <div class="text-sm text-gray-600 mb-1">Investasi Awal</div>
+                        <div class="text-2xl font-bold text-gray-800">$${principal.toFixed(2)}</div>
+                    </div>
+                    <div class="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg">
+                        <div class="text-sm text-gray-600 mb-1">Nilai Masa Depan</div>
+                        <div class="text-3xl font-bold text-indigo-600">$${finalValue.toFixed(2)}</div>
+                        <div class="text-xs text-gray-500 mt-1">Menggunakan return: ${usedReturn}%/tahun</div>
+                    </div>
+                    <div class="p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg">
+                        <div class="text-sm text-gray-600 mb-1">Total Return</div>
+                        <div class="text-2xl font-bold text-purple-600">$${totalReturn.toFixed(2)}</div>
+                        <div class="text-lg font-semibold text-purple-500">+${returnPercentage.toFixed(2)}%</div>
+                    </div>
+                    <div class="mt-6">
+                        <h3 class="font-bold text-gray-800 mb-3">Proyeksi per Tahun:</h3>
+                        <div class="space-y-2 max-h-64 overflow-y-auto">
+                            ${projections.map(proj => `
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex justify-between items-center">
+                                        <span class="font-semibold">Tahun ${proj.year}</span>
+                                        <div class="text-right">
+                                            <div class="font-bold text-gray-800">$${proj.value.toFixed(2)}</div>
+                                            <div class="text-sm text-green-600">+$${proj.return.toFixed(2)}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('resultContent').innerHTML = html;
+        }
+
+        function investInGame() {
+            const amount = parseFloat(document.getElementById('inputAmount').value);
+            
+            if (!amount || amount <= 0) {
+                alert('Masukkan jumlah investasi yang valid!');
+                return;
+            }
+            
+            if (amount > gameBalance) {
+                alert('Saldo tidak cukup!');
+                return;
+            }
+            
+            gameBalance -= amount;
+            portfolio[selectedAsset] += amount;
+            document.getElementById('inputAmount').value = '';
+            
+            updateGameDisplay();
+            updatePortfolioDisplay();
+            alert(`Berhasil investasi $${amount.toFixed(2)} di ${assets[selectedAsset].name}!`);
+        }
+
+        function nextYear() {
+            const randomCondition = conditions[Math.floor(Math.random() * conditions.length)];
+            economicCondition = randomCondition;
+            
+            lastYearReturns = {};
+            let totalPortfolioValue = 0;
+            
+            Object.keys(portfolio).forEach(asset => {
+                if (portfolio[asset] > 0) {
+                    const [minReturn, maxReturn] = assets[asset].volatilityRange;
+                    let baseReturn = minReturn + Math.random() * (maxReturn - minReturn);
+                    let adjustedReturn = baseReturn * randomCondition.multiplier;
+                    
+                    if (randomCondition.name === 'Resesi 💔' && (asset === 'gold' || asset === 'bond')) {
+                        adjustedReturn *= 1.3;
+                    }
+                    
+                    if (randomCondition.name === 'Booming 🚀' && (asset === 'bitcoin' || asset === 'stock')) {
+                        adjustedReturn *= 1.2;
+                    }
+                    
+                    const growth = adjustedReturn / 100;
+                    const oldValue = portfolio[asset];
+                    portfolio[asset] = oldValue * (1 + growth);
+                    
+                    lastYearReturns[asset] = {
+                        return: adjustedReturn,
+                        change: portfolio[asset] - oldValue
+                    };
+                    
+                    totalPortfolioValue += portfolio[asset];
+                }
+            });
+            
+            gameYear++;
+            gameHistory.push({
+                year: gameYear,
+                balance: gameBalance,
+                portfolioValue: totalPortfolioValue,
+                total: gameBalance + totalPortfolioValue,
+                condition: randomCondition.name
+            });
+            
+            updateGameDisplay();
+            updatePortfolioDisplay();
+        }
+
+        function resetGame() {
+            if (!confirm('Reset game? Progress akan hilang!')) return;
+            
+            gameBalance = 1000;
+            portfolio = { gold: 0, bitcoin: 0, stock: 0, bond: 0 };
+            gameYear = 0;
+            gameHistory = [];
+            economicCondition = 'Normal';
+            lastYearReturns = {};
+            
+            updateGameDisplay();
+            updatePortfolioDisplay();
+        }
+
+        function updateGameDisplay() {
+            const totalPortfolio = Object.values(portfolio).reduce((sum, val) => sum + val, 0);
+            const totalWealth = gameBalance + totalPortfolio;
+            
+            document.getElementById('displayBalance').textContent = `$${gameBalance.toFixed(2)}`;
+            document.getElementById('displayPortfolio').textContent = `$${totalPortfolio.toFixed(2)}`;
+            document.getElementById('displayTotal').textContent = `$${totalWealth.toFixed(2)}`;
+            document.getElementById('displayYear').textContent = gameYear;
+            document.getElementById('displayCondition').textContent = typeof economicCondition === 'object' ? economicCondition.name : economicCondition;
+            document.getElementById('displayConditionDesc').textContent = typeof economicCondition === 'object' ? economicCondition.description : '';
+        }
+
+        function updatePortfolioDisplay() {
+            const totalPortfolio = Object.values(portfolio).reduce((sum, val) => sum + val, 0);
+            
+            if (totalPortfolio === 0) {
+                document.getElementById('resultContent').innerHTML = '<div class="text-center text-gray-500 py-12"><p class="text-6xl mb-4">📊</p><p>Belum ada investasi</p><p class="text-sm mt-2">Mulai investasi untuk melihat portfolio!</p></div>';
+                return;
+            }
+            
+            let html = '<div class="space-y-4 fade-in">';
+            
+            Object.keys(portfolio).forEach(key => {
+                if (portfolio[key] > 0) {
+                    const asset = assets[key];
+                    const percentage = ((portfolio[key] / totalPortfolio) * 100).toFixed(1);
+                    const lastReturn = lastYearReturns[key];
+                    
+                    html += `
+                        <div class="p-4 bg-${asset.color}-50 rounded-lg border-2 border-opacity-20">
+                            <div class="flex items-center gap-3 mb-2">
+                                <span class="text-2xl">${asset.emoji}</span>
+                                <span class="font-bold text-gray-800">${asset.name}</span>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-800">$${portfolio[key].toFixed(2)}</div>
+                            <div class="text-sm text-gray-600">${percentage}% dari portfolio</div>
+                            ${lastReturn ? `
+                                <div class="text-sm font-semibold mt-2 ${lastReturn.change >= 0 ? 'text-green-600' : 'text-red-600'}">
+                                    Tahun ini: ${lastReturn.return >= 0 ? '+' : ''}${lastReturn.return.toFixed(2)}% 
+                                    (${lastReturn.change >= 0 ? '+' : ''}$${lastReturn.change.toFixed(2)})
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                }
+            });
+            
+            if (gameHistory.length > 0) {
+                html += `
+                    <div class="mt-6">
+                        <h3 class="font-bold text-gray-800 mb-3">Riwayat Pertumbuhan:</h3>
+                        <div class="space-y-2 max-h-48 overflow-y-auto">
+                            ${gameHistory.map((record, idx) => `
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <span class="font-semibold">Tahun ${record.year}</span>
+                                            <div class="text-xs text-gray-600 mt-1">${record.condition}</div>
+                                        </div>
+                                        <div class="text-right">
+                                            <div class="font-bold text-indigo-600">$${record.total.toFixed(2)}</div>
+                                            ${idx > 0 ? `
+                                                <div class="text-sm ${record.total >= gameHistory[idx-1].total ? 'text-green-600' : 'text-red-600'}">
+                                                    ${record.total >= gameHistory[idx-1].total ? '↑' : '↓'} 
+                                                    $${Math.abs(record.total - gameHistory[idx-1].total).toFixed(2)}
+                                                </div>
+                                            ` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }
+            
+            html += '</div>';
+            document.getElementById('resultContent').innerHTML = html;
+        }
+    </script>
+</body>
+</html>
