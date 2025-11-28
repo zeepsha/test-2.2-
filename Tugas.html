@@ -239,102 +239,117 @@
               <p class="text-[10px] text-slate-400 mt-1">*Asumsi return rata-rata per tahun</p>
             </div>
             <button onclick="calculatePension()" class="btn-primary w-full py-3 rounded-xl text-white font-semibold">
-              Cek Kesiapan Pensiun
             </button>
           </div>
         </div>
 
-        <!-- Game Inputs (Hidden) -->
-        <div id="panel-game" class="glass-panel rounded-2xl p-6 hidden">
-          <div class="flex justify-between items-center mb-4">
-            <h2 class="text-lg font-bold text-slate-800">Market Simulator</h2>
-            <div class="text-right">
-              <div class="text-xs text-slate-500">Tahun ke-</div>
-              <div class="text-xl font-bold text-indigo-600" id="game-year">0</div>
-            </div>
-          </div>
-
-          <div class="bg-indigo-900 text-white p-4 rounded-xl mb-4 shadow-lg">
-            <div class="flex justify-between items-start">
+        <!-- Game Inputs (Trading Dashboard) -->
+        <div id="panel-game" class="glass-panel rounded-2xl p-0 hidden overflow-hidden flex flex-col h-[600px]">
+          <!-- Header -->
+          <div class="bg-indigo-900 text-white p-6 shrink-0">
+            <div class="flex justify-between items-start mb-4">
               <div>
-                <div class="text-xs text-indigo-200 mb-1">Total Kekayaan</div>
-                <div class="text-2xl font-bold" id="game-balance">Rp 100.000.000</div>
+                <div class="text-xs text-indigo-300 mb-1 uppercase tracking-wider">Total Portfolio Value</div>
+                <div class="text-3xl font-bold font-mono" id="game-balance">Rp 100.000.000</div>
+                <div class="text-xs text-green-400 mt-1 flex items-center gap-1">
+                  <span id="game-pnl">+0%</span> All Time
+                </div>
               </div>
               <div class="text-right">
-                <div class="text-xs text-indigo-200 mb-1">Ekonomi</div>
-                <div class="font-bold bg-white/20 px-2 py-1 rounded text-sm" id="game-economy">Normal</div>
+                <div class="text-xs text-indigo-300 mb-1">Market Condition</div>
+                <div
+                  class="font-bold bg-white/10 px-3 py-1 rounded-full text-sm backdrop-blur-sm border border-white/20"
+                  id="game-economy">Normal</div>
+                <div class="text-[10px] text-indigo-400 mt-1">Year <span id="game-year"
+                    class="text-white font-bold">0</span></div>
               </div>
             </div>
-            <div class="flex gap-2 mt-2 text-xs">
-              <span class="bg-white/20 px-2 py-1 rounded">Cash: <span id="game-cash">Rp 100jt</span></span>
-              <span class="bg-white/20 px-2 py-1 rounded">Invest: <span id="game-invest">Rp 0</span></span>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-indigo-800/50 p-3 rounded-xl border border-indigo-700/50">
+                <div class="text-[10px] text-indigo-300 uppercase">Cash Available</div>
+                <div class="text-lg font-bold" id="game-cash">Rp 100.000.000</div>
+              </div>
+              <div class="bg-indigo-800/50 p-3 rounded-xl border border-indigo-700/50">
+                <div class="text-[10px] text-indigo-300 uppercase">Invested</div>
+                <div class="text-lg font-bold" id="game-invest">Rp 0</div>
+              </div>
             </div>
           </div>
 
-          <div class="space-y-3">
-            <label class="text-xs font-bold text-slate-500 uppercase">Alokasi Aset (Beli / Jual)</label>
-            <div class="grid grid-cols-1 gap-2">
-              <!-- S&P 500 -->
-              <div class="flex items-center gap-2 p-2 border rounded-xl hover:bg-slate-50">
-                <div class="flex-1">
-                  <div class="font-bold text-sm">S&P 500</div>
-                  <div class="text-xs text-slate-500">Avg 10%</div>
-                </div>
-                <button onclick="gameBuy('sp500')"
-                  class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-bold hover:bg-indigo-200">Beli</button>
-                <button onclick="gameSell('sp500')"
-                  class="px-3 py-1 bg-red-100 text-red-700 rounded text-xs font-bold hover:bg-red-200">Jual</button>
+          <!-- Market List (Scrollable) -->
+          <div class="flex-1 overflow-y-auto p-4 bg-slate-50 space-y-3" id="asset-list">
+            <!-- Asset Cards will be injected here -->
+          </div>
+
+          <!-- Bottom Action Bar -->
+          <div class="p-4 bg-white border-t border-slate-200 shrink-0">
+            <button onclick="gameNextYear()"
+              class="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold shadow-lg shadow-indigo-500/20 flex justify-center items-center gap-2 transition-all active:scale-95">
+              <span>Advance Next Year</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M5 12h14" />
+                <path d="m12 5 7 7-7 7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- Trade Modal (Hidden) -->
+        <div id="trade-modal" class="fixed inset-0 z-[60] hidden">
+          <div class="absolute inset-0 bg-black/50 backdrop-blur-sm" onclick="closeTradeModal()"></div>
+          <div
+            class="absolute bottom-0 left-0 right-0 md:top-1/2 md:left-1/2 md:bottom-auto md:right-auto md:-translate-x-1/2 md:-translate-y-1/2 md:w-[400px] bg-white md:rounded-2xl rounded-t-2xl p-6 shadow-2xl transform transition-transform duration-300 translate-y-full md:translate-y-0"
+            id="trade-panel">
+            <div class="flex justify-between items-center mb-6">
+              <div>
+                <h3 class="text-xl font-bold text-slate-800" id="trade-asset-name">S&P 500</h3>
+                <div class="text-sm text-slate-500" id="trade-asset-price">Rp 1.500 / unit</div>
               </div>
-              <!-- Crypto -->
-              <div class="flex items-center gap-2 p-2 border rounded-xl hover:bg-slate-50">
-                <div class="flex-1">
-                  <div class="font-bold text-sm">Crypto</div>
-                  <div class="text-xs text-slate-500">Avg 50%</div>
-                </div>
-                <button onclick="gameBuy('crypto')"
-                  class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-bold hover:bg-indigo-200">Beli</button>
-                <button onclick="gameSell('crypto')"
-                  class="px-3 py-1 bg-red-100 text-red-700 rounded text-xs font-bold hover:bg-red-200">Jual</button>
-              </div>
-              <!-- Bond -->
-              <div class="flex items-center gap-2 p-2 border rounded-xl hover:bg-slate-50">
-                <div class="flex-1">
-                  <div class="font-bold text-sm">Obligasi</div>
-                  <div class="text-xs text-slate-500">Avg 6%</div>
-                </div>
-                <button onclick="gameBuy('bond')"
-                  class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-bold hover:bg-indigo-200">Beli</button>
-                <button onclick="gameSell('bond')"
-                  class="px-3 py-1 bg-red-100 text-red-700 rounded text-xs font-bold hover:bg-red-200">Jual</button>
-              </div>
-              <!-- Gold -->
-              <div class="flex items-center gap-2 p-2 border rounded-xl hover:bg-slate-50">
-                <div class="flex-1">
-                  <div class="font-bold text-sm">Emas</div>
-                  <div class="text-xs text-slate-500">Avg 8%</div>
-                </div>
-                <button onclick="gameBuy('gold')"
-                  class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-bold hover:bg-indigo-200">Beli</button>
-                <button onclick="gameSell('gold')"
-                  class="px-3 py-1 bg-red-100 text-red-700 rounded text-xs font-bold hover:bg-red-200">Jual</button>
+              <button onclick="closeTradeModal()" class="p-2 bg-slate-100 rounded-full hover:bg-slate-200"><svg
+                  xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M18 6 6 18" />
+                  <path d="m6 6 12 12" />
+                </svg></button>
+            </div>
+
+            <div class="flex p-1 bg-slate-100 rounded-xl mb-6">
+              <button onclick="setTradeType('buy')" id="btn-buy"
+                class="flex-1 py-2 rounded-lg text-sm font-bold transition-all bg-white shadow text-green-600">Buy</button>
+              <button onclick="setTradeType('sell')" id="btn-sell"
+                class="flex-1 py-2 rounded-lg text-sm font-bold transition-all text-slate-500">Sell</button>
+            </div>
+
+            <div class="mb-6">
+              <label class="text-xs font-bold text-slate-500 uppercase mb-2 block">Amount (Rp)</label>
+              <input type="number" id="trade-amount"
+                class="w-full text-2xl font-bold p-3 border-b-2 border-slate-200 focus:border-indigo-500 outline-none bg-transparent"
+                placeholder="0" oninput="calcUnits()">
+              <div class="flex justify-between mt-2 text-xs text-slate-400">
+                <span>Est. Units: <span id="trade-units" class="text-slate-800 font-bold">0</span></span>
+                <span class="text-indigo-600 cursor-pointer" onclick="useMaxCash()">Max Cash</span>
               </div>
             </div>
 
-            <div class="flex gap-2 mt-4">
-              <input type="number" id="game-amount" class="input-field flex-1 p-2 rounded-lg"
-                placeholder="Nominal Transaksi">
-              <button onclick="gameNextYear()"
-                class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg font-bold shadow-lg shadow-green-500/20">Next
-                Year >></button>
-            </div>
-            <div id="game-log" class="text-xs text-slate-500 h-32 overflow-y-auto bg-slate-50 p-2 rounded border"></div>
+            <button onclick="executeTrade()"
+              class="w-full py-3.5 bg-green-600 text-white rounded-xl font-bold shadow-lg shadow-green-500/20 active:scale-95 transition-transform"
+              id="btn-execute">Confirm Buy</button>
           </div>
         </div>
 
       </div>
 
-      <!-- RIGHT PANEL: RESULTS -->
+      <!-- RIGHT PANEL: RESULTS (Modified for Game Mode) -->
       <div class="lg:col-span-8 space-y-6 fade-in" style="animation-delay: 0.2s">
+
+        <!-- Game Log (Only visible in Game Mode) -->
+        <div id="game-log-panel" class="glass-panel p-4 rounded-2xl hidden h-[200px] overflow-y-auto">
+          <h3 class="text-sm font-bold text-slate-500 mb-2 sticky top-0 bg-white/90 backdrop-blur pb-2 border-b">
+            Activity Log</h3>
+          <div id="game-log" class="space-y-2 text-sm"></div>
+        </div>
 
         <!-- Learn Panel (Hidden) -->
         <div id="panel-learn" class="glass-panel p-6 rounded-2xl hidden">
@@ -715,21 +730,30 @@
       ]);
     }
 
-    // --- GAME LOGIC ---
+    // --- GAME STATE ---
     let gameData = {
       year: 0,
-      balance: 100000000,
       cash: 100000000,
-      portfolio: { sp500: 0, crypto: 0, bond: 0, gold: 0 },
+      initialCash: 100000000,
+      portfolio: {}, // { assetKey: { units: 0, avgPrice: 0 } }
+      prices: {},    // { assetKey: 100 } (Base index 100)
       history: [],
-      economy: 'Normal' // Normal, Boom, Recession, Crash
+      economy: 'Normal'
     };
 
+    // Init Prices & Portfolio
+    Object.keys(ASSETS).forEach(k => {
+      if (k !== 'custom') {
+        gameData.prices[k] = 1000; // Start price Rp 1.000
+        gameData.portfolio[k] = { units: 0, avgPrice: 0 };
+      }
+    });
+
     const ECONOMY_TYPES = {
-      'Normal': { label: 'Normal', color: 'text-slate-600', multiplier: 1 },
-      'Boom': { label: 'Boom Market 🚀', color: 'text-green-600', multiplier: 1.5 },
-      'Recession': { label: 'Resesi 📉', color: 'text-orange-600', multiplier: 0.5 },
-      'Crash': { label: 'Market Crash 💥', color: 'text-red-600', multiplier: -0.5 }
+      'Normal': { label: 'Normal', color: 'text-slate-200', bg: 'bg-slate-500', multiplier: 1 },
+      'Boom': { label: 'Boom 🚀', color: 'text-green-200', bg: 'bg-green-600', multiplier: 1.5 },
+      'Recession': { label: 'Resesi 📉', color: 'text-orange-200', bg: 'bg-orange-600', multiplier: 0.5 },
+      'Crash': { label: 'Crash 💥', color: 'text-red-200', bg: 'bg-red-600', multiplier: -0.5 }
     };
 
     const EVENTS = [
@@ -738,127 +762,204 @@
       { msg: "Kondangan teman akrab", cost: 500000 },
       { msg: "Bayar BPJS setahun", cost: 1800000 },
       { msg: "HP Rusak ganti LCD", cost: 1500000 },
-      { msg: "Dapet Bonus Tahunan!", cost: -5000000 }, // Negative cost = Income
+      { msg: "Dapet Bonus Tahunan!", cost: -5000000 },
       { msg: "Menang Giveaway", cost: -1000000 }
     ];
 
-    function gameBuy(asset) {
-      const amount = Number(document.getElementById('game-amount').value);
-      if (!amount || amount <= 0) return alert("Masukkan nominal valid");
-      if (amount > gameData.cash) return alert("Cash tidak cukup!");
+    // --- TRADING LOGIC ---
+    let activeTrade = { asset: null, type: 'buy' };
 
-      gameData.cash -= amount;
-      gameData.portfolio[asset] += amount;
-      gameUpdateUI();
-      logGame(`Beli ${asset} senilai ${rp(amount)}`, 'text-blue-600');
+    function openTrade(asset) {
+      activeTrade.asset = asset;
+      setTradeType('buy');
+      document.getElementById('trade-modal').classList.remove('hidden');
+      document.getElementById('trade-panel').classList.remove('translate-y-full');
+
+      document.getElementById('trade-asset-name').innerText = ASSETS[asset].name;
+      document.getElementById('trade-asset-price').innerText = `${rp(gameData.prices[asset])} / unit`;
+      document.getElementById('trade-amount').value = '';
+      document.getElementById('trade-units').innerText = '0';
     }
 
-    function gameSell(asset) {
-      const amount = Number(document.getElementById('game-amount').value);
-      if (!amount || amount <= 0) return alert("Masukkan nominal valid");
-      if (amount > gameData.portfolio[asset]) return alert("Aset tidak cukup!");
+    function closeTradeModal() {
+      document.getElementById('trade-modal').classList.add('hidden');
+    }
 
-      gameData.portfolio[asset] -= amount;
-      gameData.cash += amount;
+    function setTradeType(type) {
+      activeTrade.type = type;
+      const btnBuy = document.getElementById('btn-buy');
+      const btnSell = document.getElementById('btn-sell');
+      const btnExec = document.getElementById('btn-execute');
+
+      if (type === 'buy') {
+        btnBuy.className = "flex-1 py-2 rounded-lg text-sm font-bold transition-all bg-white shadow text-green-600";
+        btnSell.className = "flex-1 py-2 rounded-lg text-sm font-bold transition-all text-slate-500 bg-slate-100";
+        btnExec.className = "w-full py-3.5 bg-green-600 text-white rounded-xl font-bold shadow-lg shadow-green-500/20 active:scale-95 transition-transform";
+        btnExec.innerText = "Confirm Buy";
+      } else {
+        btnSell.className = "flex-1 py-2 rounded-lg text-sm font-bold transition-all bg-white shadow text-red-600";
+        btnBuy.className = "flex-1 py-2 rounded-lg text-sm font-bold transition-all text-slate-500 bg-slate-100";
+        btnExec.className = "w-full py-3.5 bg-red-600 text-white rounded-xl font-bold shadow-lg shadow-red-500/20 active:scale-95 transition-transform";
+        btnExec.innerText = "Confirm Sell";
+      }
+      calcUnits();
+    }
+
+    function calcUnits() {
+      const amount = Number(document.getElementById('trade-amount').value) || 0;
+      const price = gameData.prices[activeTrade.asset];
+      const units = amount / price;
+      document.getElementById('trade-units').innerText = units.toFixed(2);
+    }
+
+    function useMaxCash() {
+      if (activeTrade.type === 'buy') {
+        document.getElementById('trade-amount').value = gameData.cash;
+      } else {
+        const units = gameData.portfolio[activeTrade.asset].units;
+        const price = gameData.prices[activeTrade.asset];
+        document.getElementById('trade-amount').value = Math.floor(units * price);
+      }
+      calcUnits();
+    }
+
+    function executeTrade() {
+      const amount = Number(document.getElementById('trade-amount').value);
+      const asset = activeTrade.asset;
+      const price = gameData.prices[asset];
+
+      if (!amount || amount <= 0) return alert("Invalid amount");
+
+      if (activeTrade.type === 'buy') {
+        if (amount > gameData.cash) return alert("Cash insufficient!");
+        const units = amount / price;
+        gameData.cash -= amount;
+
+        // Update avg price
+        const prevUnits = gameData.portfolio[asset].units;
+        const prevCost = prevUnits * gameData.portfolio[asset].avgPrice;
+        const newCost = prevCost + amount;
+        const newUnits = prevUnits + units;
+
+        gameData.portfolio[asset].units = newUnits;
+        gameData.portfolio[asset].avgPrice = newCost / newUnits;
+
+        logGame(`BUY ${ASSETS[asset].name}: ${units.toFixed(2)} units @ ${rp(price)}`, 'text-green-600 font-bold');
+      } else {
+        const currentVal = gameData.portfolio[asset].units * price;
+        if (amount > currentVal) return alert("Insufficient assets!");
+
+        const unitsToSell = amount / price;
+        gameData.portfolio[asset].units -= unitsToSell;
+        gameData.cash += amount;
+
+        logGame(`SELL ${ASSETS[asset].name}: ${unitsToSell.toFixed(2)} units @ ${rp(price)}`, 'text-red-600 font-bold');
+      }
+
+      closeTradeModal();
       gameUpdateUI();
-      logGame(`Jual ${asset} senilai ${rp(amount)}`, 'text-green-600');
     }
 
     function gameNextYear() {
       gameData.year++;
 
-      // 1. Economic Cycle Change (20% chance)
+      // 1. Economy
       if (Math.random() < 0.2) {
         const types = Object.keys(ECONOMY_TYPES);
         gameData.economy = types[Math.floor(Math.random() * types.length)];
-        logGame(`Ekonomi berubah menjadi: ${ECONOMY_TYPES[gameData.economy].label}`, 'font-bold ' + ECONOMY_TYPES[gameData.economy].color);
+        logGame(`MARKET: Economy shifted to ${ECONOMY_TYPES[gameData.economy].label}`, 'text-indigo-600 font-bold bg-indigo-50 p-1 rounded');
       }
 
-      // 2. Asset Growth based on Economy
-      let totalPort = 0;
+      // 2. Price Updates
       const ecoMult = ECONOMY_TYPES[gameData.economy].multiplier;
+      for (let k in gameData.prices) {
+        const base = ASSETS[k].ret;
+        const vol = ASSETS[k].vol;
 
-      for (let key in gameData.portfolio) {
-        if (gameData.portfolio[key] > 0) {
-          const base = ASSETS[key].ret;
-          const vol = ASSETS[key].vol;
+        let effectiveBase = base;
+        if (gameData.economy === 'Crash') effectiveBase = -Math.abs(base * 2);
+        else effectiveBase = base * ecoMult;
 
-          // Base return affected by economy
-          // Normal: base | Boom: base*1.5 | Recession: base*0.5 | Crash: negative
-          let effectiveBase = base;
-          if (gameData.economy === 'Crash') effectiveBase = -Math.abs(base * 2); // Crash is bad
-          else effectiveBase = base * ecoMult;
+        const r = effectiveBase + (Math.random() * vol * 2 - vol);
+        const change = 1 + (r / 100);
 
-          // Random walk component
-          const r = effectiveBase + (Math.random() * vol * 2 - vol);
-
-          const gain = gameData.portfolio[key] * (r / 100);
-          gameData.portfolio[key] += gain;
-
-          // Log significant moves
-          if (Math.abs(r) > 20) logGame(`${key}: ${r.toFixed(1)}% (${rp(gain)})`, r > 0 ? 'text-green-500' : 'text-red-500');
-        }
-        totalPort += gameData.portfolio[key];
+        gameData.prices[k] *= change;
       }
 
-      // 3. Random Life Events (30% chance)
+      // 3. Events
       if (Math.random() < 0.3) {
         const evt = EVENTS[Math.floor(Math.random() * EVENTS.length)];
         gameData.cash -= evt.cost;
         const color = evt.cost > 0 ? 'text-red-600' : 'text-green-600';
-        logGame(`EVENT: ${evt.msg} (${rp(-evt.cost)})`, 'font-bold ' + color);
-
-        if (gameData.cash < 0) {
-          logGame("PERINGATAN: Cash minus! Anda berhutang.", 'text-red-700 font-bold bg-red-100 p-1');
-        }
+        logGame(`EVENT: ${evt.msg} (${rp(-evt.cost)})`, color);
       }
 
-      gameData.balance = gameData.cash + totalPort;
       gameUpdateUI();
     }
 
     function gameUpdateUI() {
+      // Header Stats
+      let investVal = 0;
+      for (let k in gameData.portfolio) {
+        investVal += gameData.portfolio[k].units * gameData.prices[k];
+      }
+      const total = gameData.cash + investVal;
+      const pnl = ((total - gameData.initialCash) / gameData.initialCash) * 100;
+
+      setHtml('game-balance', rp(total));
+      setHtml('game-cash', rp(gameData.cash));
+      setHtml('game-invest', rp(investVal));
       setHtml('game-year', gameData.year);
-      setHtml('game-balance', rp(gameData.balance));
+
+      const pnlEl = document.getElementById('game-pnl');
+      pnlEl.innerText = (pnl >= 0 ? '+' : '') + pnl.toFixed(2) + '%';
+      pnlEl.className = pnl >= 0 ? 'text-green-400 font-bold' : 'text-red-400 font-bold';
 
       const eco = ECONOMY_TYPES[gameData.economy];
-      setHtml('game-economy', `<span class="${eco.color}">${eco.label}</span>`);
+      const ecoEl = document.getElementById('game-economy');
+      ecoEl.innerText = eco.label;
+      ecoEl.className = `font-bold px-3 py-1 rounded-full text-sm backdrop-blur-sm border border-white/20 ${eco.color} ${eco.bg}/20`;
 
-      const total = gameData.balance;
-      // Handle negative balance visual
-      const safeTotal = total > 0 ? total : 1;
+      // Render Asset Cards
+      const list = document.getElementById('asset-list');
+      list.innerHTML = '';
 
-      const invest = Object.values(gameData.portfolio).reduce((a, b) => a + b, 0);
-      setHtml('game-cash', rp(gameData.cash));
-      setHtml('game-invest', rp(invest));
+      Object.keys(ASSETS).forEach(k => {
+        if (k === 'custom') return;
+        const price = gameData.prices[k];
+        const units = gameData.portfolio[k].units;
+        const val = units * price;
 
-      // Update Pie Chart
-      const p = gameData.portfolio;
-      const labels = ['Cash', ...Object.keys(p)];
-      // Chart.js doesn't like negative values for doughnut, so clamp cash to 0 for chart
-      const chartCash = gameData.cash > 0 ? gameData.cash : 0;
-      const data = [chartCash, ...Object.values(p)];
+        // Mock 1Y change for visual (randomized slightly for "live" feel)
+        const change = (Math.random() * 4 - 2).toFixed(2);
+        const changeColor = change >= 0 ? 'text-green-600 bg-green-100' : 'text-red-600 bg-red-100';
 
-      if (pieInstance) pieInstance.destroy();
-      const ctx = document.getElementById('pieChart').getContext('2d');
-      pieInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: labels,
-          datasets: [{
-            data: data,
-            backgroundColor: ['#cbd5e1', '#4f46e5', '#f59e0b', '#10b981', '#ef4444']
-          }]
-        },
-        options: { responsive: true, plugins: { legend: { position: 'right' } } }
+        list.innerHTML += `
+          <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex justify-between items-center hover:shadow-md transition-shadow cursor-pointer" onclick="openTrade('${k}')">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-lg">
+                ${k === 'gold' ? '🥇' : k === 'crypto' ? '₿' : k === 'sp500' ? '📈' : '📄'}
+              </div>
+              <div>
+                <div class="font-bold text-slate-800">${ASSETS[k].name}</div>
+                <div class="text-xs text-slate-500">${units.toFixed(2)} units • ${rp(val)}</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="font-bold text-slate-800">${rp(price)}</div>
+              <div class="text-[10px] font-bold px-2 py-0.5 rounded-full inline-block ${changeColor}">${change}%</div>
+            </div>
+          </div>
+        `;
       });
-
-      document.getElementById('analysis-panel').classList.remove('hidden');
     }
 
     function logGame(msg, classes = '') {
       const log = document.getElementById('game-log');
-      log.innerHTML = `<div class="mb-1 ${classes}"><span class="text-slate-400 text-[10px]">Thn ${gameData.year}</span> ${msg}</div>` + log.innerHTML;
+      log.innerHTML = `<div class="mb-2 pb-2 border-b border-slate-100 last:border-0 ${classes}">
+        <span class="text-[10px] text-slate-400 block mb-0.5">Year ${gameData.year}</span>
+        ${msg}
+      </div>` + log.innerHTML;
     }
 
     // --- CHARTING ---
@@ -897,6 +998,7 @@
     }
 
     // --- NAVIGATION ---
+    // --- NAVIGATION ---
     function setMode(mode) {
       ['calc', 'pension', 'game', 'learn'].forEach(m => {
         const panel = document.getElementById(`panel-${m}`);
@@ -915,12 +1017,23 @@
       btn.classList.remove('text-slate-500');
 
       // Reset view
+      const resContainer = document.getElementById('results-container');
+      const logPanel = document.getElementById('game-log-panel');
+      const analysisPanel = document.getElementById('analysis-panel');
+
+      // Default state
+      resContainer.classList.remove('hidden');
+      logPanel.classList.add('hidden');
+      analysisPanel.classList.add('hidden');
+
       if (mode === 'learn') {
-        document.getElementById('results-container').classList.add('hidden');
-      } else {
-        document.getElementById('results-container').classList.remove('hidden');
-        document.getElementById('analysis-panel').classList.add('hidden');
-        if (mode === 'calc') calculate();
+        resContainer.classList.add('hidden');
+      } else if (mode === 'game') {
+        resContainer.classList.add('hidden'); // Hide calc results
+        logPanel.classList.remove('hidden');  // Show game log
+        gameUpdateUI();
+      } else if (mode === 'calc') {
+        calculate();
       }
     }
 
